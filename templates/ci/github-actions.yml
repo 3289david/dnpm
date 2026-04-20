@@ -1,0 +1,62 @@
+name: dnpm Deploy
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+env:
+  NODE_ENV: production
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run linter
+        run: npm run lint --if-present
+
+      - name: Run tests
+        run: npm test
+
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        run: docker build -t app .
+
+      - name: Run security scan
+        run: docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy image app || true
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy with dnpm
+        run: |
+          npm install -g dnpm
+          dnpm deploy --ci --strategy rolling
+        env:
+          DNPM_DEPLOY_TOKEN: ${{ secrets.DNPM_DEPLOY_TOKEN }}
+          DNPM_OPENAI_API_KEY: ${{ secrets.DNPM_OPENAI_API_KEY }}

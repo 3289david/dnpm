@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>dnpm — All-in-One DevOps AI Platform</title>
+  <meta name="description" content="dnpm: npm + Docker + Vercel + AWS + AI combined into a single terminal DevOps operating system.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --bg-card: #12121a;
+      --bg-code: #1a1a2e;
+      --border: #1e1e30;
+      --border-glow: #7c3aed40;
+      --text: #e2e8f0;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      --primary: #7c3aed;
+      --primary-light: #a78bfa;
+      --secondary: #06b6d4;
+      --accent: #f59e0b;
+      --green: #10b981;
+      --red: #ef4444;
+      --gradient: linear-gradient(135deg, #7c3aed, #06b6d4);
+      --gradient-warm: linear-gradient(135deg, #f59e0b, #ef4444);
+      --font: 'Inter', -apple-system, sans-serif;
+      --mono: 'JetBrains Mono', 'Fira Code', monospace;
+      --max-width: 1200px;
+      --radius: 12px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: var(--primary-light); text-decoration: none; transition: color 0.2s; }
+    a:hover { color: var(--secondary); }
+    code, pre { font-family: var(--mono); }
+    code {
+      background: var(--bg-code);
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: 0.9em;
+      color: var(--secondary);
+    }
+
+    /* ===== NAVIGATION ===== */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      background: rgba(10,10,15,0.85);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+    }
+    .nav-inner {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+    }
+    .nav-logo {
+      font-weight: 800;
+      font-size: 1.4rem;
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.02em;
+    }
+    .nav-links { display: flex; gap: 2rem; list-style: none; }
+    .nav-links a {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--text); }
+    .nav-cta {
+      background: var(--gradient);
+      color: white !important;
+      padding: 8px 20px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      -webkit-text-fill-color: white;
+    }
+
+    /* ===== HERO ===== */
+    .hero {
+      padding: 10rem 2rem 6rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -200px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 800px;
+      height: 800px;
+      background: radial-gradient(circle, var(--primary) 0%, transparent 60%);
+      opacity: 0.08;
+      pointer-events: none;
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      padding: 6px 16px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 2rem;
+    }
+    .hero-badge span {
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-weight: 600;
+    }
+    .hero h1 {
+      font-size: clamp(2.5rem, 6vw, 4.5rem);
+      font-weight: 900;
+      line-height: 1.1;
+      margin-bottom: 1.5rem;
+      letter-spacing: -0.03em;
+    }
+    .hero h1 .gradient {
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hero p {
+      font-size: 1.25rem;
+      color: var(--text-muted);
+      max-width: 700px;
+      margin: 0 auto 2.5rem;
+    }
+    .hero-buttons {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 28px;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      border: none;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .btn:hover { transform: translateY(-2px); }
+    .btn-primary {
+      background: var(--gradient);
+      color: white;
+      box-shadow: 0 4px 20px rgba(124, 58, 237, 0.3);
+    }
+    .btn-secondary {
+      background: var(--bg-card);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    /* ===== TERMINAL ===== */
+    .terminal {
+      max-width: 700px;
+      margin: 3rem auto 0;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      text-align: left;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    }
+    .terminal-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 16px;
+      background: rgba(0,0,0,0.3);
+      border-bottom: 1px solid var(--border);
+    }
+    .terminal-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+    .terminal-dot:nth-child(1) { background: #ef4444; }
+    .terminal-dot:nth-child(2) { background: #f59e0b; }
+    .terminal-dot:nth-child(3) { background: #10b981; }
+    .terminal-bar span {
+      flex: 1;
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--text-dim);
+    }
+    .terminal-body {
+      padding: 1.5rem;
+      font-family: var(--mono);
+      font-size: 0.9rem;
+      line-height: 1.8;
+    }
+    .terminal-body .prompt { color: var(--green); }
+    .terminal-body .cmd { color: var(--text); }
+    .terminal-body .out { color: var(--text-dim); }
+    .terminal-body .hl { color: var(--secondary); }
+    .terminal-body .warn { color: var(--accent); }
+
+    /* ===== FEATURES ===== */
+    .section {
+      padding: 6rem 2rem;
+      max-width: var(--max-width);
+      margin: 0 auto;
+    }
+    .section-header {
+      text-align: center;
+      margin-bottom: 4rem;
+    }
+    .section-header .label {
+      display: inline-block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 1rem;
+    }
+    .section-header h2 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 1rem;
+    }
+    .section-header p {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 1.5rem;
+    }
+    .feature-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 2rem;
+      transition: border-color 0.3s, transform 0.3s;
+    }
+    .feature-card:hover {
+      border-color: var(--border-glow);
+      transform: translateY(-4px);
+    }
+    .feature-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      margin-bottom: 1.2rem;
+    }
+    .feature-card h3 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+    .feature-card p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    /* ===== STATS ===== */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 2rem;
+      padding: 4rem 2rem;
+      max-width: var(--max-width);
+      margin: 0 auto;
+      text-align: center;
+    }
+    .stat-num {
+      font-size: 3rem;
+      font-weight: 900;
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .stat-label {
+      color: var(--text-dim);
+      font-size: 0.9rem;
+      margin-top: 0.3rem;
+    }
+
+    /* ===== COMMANDS ===== */
+    .command-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .command-table th {
+      text-align: left;
+      padding: 1rem 1.5rem;
+      background: rgba(0,0,0,0.3);
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+    }
+    .command-table td {
+      padding: 0.8rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.95rem;
+    }
+    .command-table td:first-child {
+      font-family: var(--mono);
+      color: var(--secondary);
+      white-space: nowrap;
+    }
+    .command-table tr:last-child td { border-bottom: none; }
+    .command-table tr:hover { background: rgba(124, 58, 237, 0.05); }
+    .cmd-category {
+      font-weight: 700;
+      color: var(--primary-light) !important;
+      font-family: var(--font) !important;
+      background: rgba(124, 58, 237, 0.08);
+    }
+
+    /* ===== ARCHITECTURE ===== */
+    .arch-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+    .arch-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      text-align: center;
+    }
+    .arch-box h4 {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-dim);
+      margin-bottom: 0.5rem;
+    }
+    .arch-box ul {
+      list-style: none;
+      font-size: 0.9rem;
+    }
+    .arch-box li {
+      padding: 4px 0;
+      color: var(--text-muted);
+    }
+    .arch-arrow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      color: var(--primary);
+    }
+
+    /* ===== CODE BLOCK ===== */
+    .code-block {
+      background: var(--bg-code);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .code-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.8rem 1.2rem;
+      background: rgba(0,0,0,0.3);
+      border-bottom: 1px solid var(--border);
+      font-size: 0.8rem;
+      color: var(--text-dim);
+    }
+    .code-block pre {
+      padding: 1.5rem;
+      overflow-x: auto;
+      font-size: 0.85rem;
+      line-height: 1.7;
+      background: transparent;
+    }
+    .code-block code {
+      background: transparent;
+      padding: 0;
+      color: var(--text);
+    }
+    .code-block .kw { color: #c084fc; }
+    .code-block .fn { color: #67e8f9; }
+    .code-block .str { color: #86efac; }
+    .code-block .cmt { color: #64748b; }
+    .code-block .num { color: #fbbf24; }
+
+    /* ===== PROVIDERS ===== */
+    .provider-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+    }
+    .provider-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 2rem 1.5rem;
+      text-align: center;
+      transition: border-color 0.3s;
+    }
+    .provider-card:hover { border-color: var(--border-glow); }
+    .provider-card .emoji { font-size: 2.5rem; margin-bottom: 1rem; display: block; }
+    .provider-card h4 { font-weight: 700; margin-bottom: 0.3rem; }
+    .provider-card p { color: var(--text-dim); font-size: 0.85rem; }
+    .provider-card .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      margin-top: 0.8rem;
+    }
+    .badge-free { background: rgba(16,185,129,0.15); color: var(--green); }
+    .badge-paid { background: rgba(245,158,11,0.15); color: var(--accent); }
+
+    /* ===== FOOTER ===== */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 3rem 2rem;
+      text-align: center;
+      color: var(--text-dim);
+      font-size: 0.9rem;
+    }
+    footer a { color: var(--text-muted); }
+    .footer-links { display: flex; gap: 2rem; justify-content: center; margin-bottom: 1rem; }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .stats { grid-template-columns: repeat(2, 1fr); }
+      .arch-grid { grid-template-columns: 1fr; }
+      .feature-grid { grid-template-columns: 1fr; }
+      .hero h1 { font-size: 2.2rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAVIGATION -->
+<nav>
+  <div class="nav-inner">
+    <a href="#" class="nav-logo">⚡ dnpm</a>
+    <ul class="nav-links">
+      <li><a href="#features">Features</a></li>
+      <li><a href="#commands">Commands</a></li>
+      <li><a href="#ai">AI Providers</a></li>
+      <li><a href="#quickstart">Quick Start</a></li>
+      <li><a href="#architecture">Architecture</a></li>
+    </ul>
+    <a href="#install" class="nav-cta">Install Now</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge">
+    🚀 <span>v1.0.0 Released</span> — AI-Powered DevOps
+  </div>
+  <h1>
+    One Command to<br>
+    <span class="gradient">Rule All DevOps</span>
+  </h1>
+  <p>
+    npm + Docker + Vercel + AWS + GPT — combined into a single terminal OS.
+    Deploy, scale, monitor, and manage everything with AI-powered intelligence.
+  </p>
+  <div class="hero-buttons">
+    <a href="#install" class="btn btn-primary">
+      ⚡ Get Started
+    </a>
+    <a href="#commands" class="btn btn-secondary">
+      📖 View Commands
+    </a>
+  </div>
+
+  <!-- Terminal Demo -->
+  <div class="terminal">
+    <div class="terminal-bar">
+      <div class="terminal-dot"></div>
+      <div class="terminal-dot"></div>
+      <div class="terminal-dot"></div>
+      <span>terminal — dnpm</span>
+    </div>
+    <div class="terminal-body">
+      <span class="prompt">$</span> <span class="cmd">npm install -g dnpm</span><br>
+      <span class="out">+ dnpm@1.0.0 installed globally</span><br><br>
+      <span class="prompt">$</span> <span class="cmd">dnpm init</span><br>
+      <span class="hl">⚡ dnpm — AI DevOps Platform</span><br>
+      <span class="out">✓ Detected Node.js project</span><br>
+      <span class="out">✓ Docker environment ready</span><br>
+      <span class="out">✓ AI provider: Ollama (llama3)</span><br><br>
+      <span class="prompt">$</span> <span class="cmd">dnpm deploy</span><br>
+      <span class="out">✓ Building Docker image...</span><br>
+      <span class="out">✓ Running health checks...</span><br>
+      <span class="hl">✓ Deployed successfully in 12s</span><br>
+      <span class="out">  → http://localhost:3000</span>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats">
+  <div>
+    <div class="stat-num">50+</div>
+    <div class="stat-label">CLI Commands</div>
+  </div>
+  <div>
+    <div class="stat-num">5</div>
+    <div class="stat-label">AI Providers</div>
+  </div>
+  <div>
+    <div class="stat-num">7+</div>
+    <div class="stat-label">Cloud Providers</div>
+  </div>
+  <div>
+    <div class="stat-num">∞</div>
+    <div class="stat-label">Possibilities</div>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<section class="section" id="features">
+  <div class="section-header">
+    <div class="label">Features</div>
+    <h2>Everything You Need. One Tool.</h2>
+    <p>From development to production — dnpm handles the entire DevOps lifecycle with AI intelligence built in.</p>
+  </div>
+
+  <div class="feature-grid">
+    <div class="feature-card">
+      <div class="feature-icon" style="background:rgba(124,58,237,0.1)">🤖</div>
+      <h3>AI-Powered DevOps</h3>
+      <p>Interactive AI assistant that writes code, fixes bugs, reviews security, generates infrastructure, and auto-scales your systems. Supports Ollama (free local), OpenAI, Claude, Gemini, and OpenRouter.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon" style="background:rgba(6,182,212,0.1)">🐳</div>
+      <h3>Docker-First Deployment</h3>
+      <p>Auto-generates Dockerfiles & docker-compose. Supports rolling, blue-green, and canary deployment strategies. Zero-downtime by default.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon" style="background:rgba(16,185,129,0.1)">☁️</div>
+      <h3>Multi-Cloud Management</h3>
+      <p>Deploy to AWS, GCP, DigitalOcean, or any VPS via SSH. Create and destroy cloud resources with a single command.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon" style="background:rgba(245,158,11,0.1)">🔒</div>
+      <h3>Security Suite</h3>
+      <p>Full security audit, dependency scanning, port scanning, firewall management, SSH hardening, DDoS protection, and AES-256-GCM encrypted secrets vault.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon" style="background:rgba(239,68,68,0.1)">📊</div>
+      <h3>Real-Time Monitoring</h3>
+      <p>Live terminal dashboard with CPU, RAM, disk, network metrics. AI-powered spike detection with automatic alerts and recommendations.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon" style="background:rgba(168,85,247,0.1)">🔄</div>
+      <h3>Auto-Healing & Recovery</h3>
+      <p>Self-healing watchdog daemon that auto-restarts crashed services, fixes permissions, and rebuilds containers. One-click rollback to last known good state.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon" style="background:rgba(34,211,238,0.1)">⚡</div>
+      <h3>Auto-Scaling</h3>
+      <p>AI-powered auto-scaling that monitors CPU and memory usage. Automatic load balancer configuration. Scale containers up or down on demand.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon" style="background:rgba(250,204,21,0.1)">💰</div>
+      <h3>Cost Optimization</h3>
+      <p>AI-analyzed infrastructure costs with recommendations. Auto-shutdown idle resources. Find the cheapest cloud configuration for your workload.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon" style="background:rgba(52,211,153,0.1)">💾</div>
+      <h3>Backup & Restore</h3>
+      <p>Full project backups including Docker volumes and databases. Scheduled auto-backups with retention policies. One-command restore.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon" style="background:rgba(99,102,241,0.1)">🌐</div>
+      <h3>DNS Management</h3>
+      <p>Configure DNS records across Cloudflare, Route53, and DigitalOcean. Automatic SSL setup and DNS status monitoring.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon" style="background:rgba(236,72,153,0.1)">🔌</div>
+      <h3>Plugin Ecosystem</h3>
+      <p>10+ official plugins for AWS, Vercel, Kubernetes, Terraform, Cloudflare, Slack, and more. Extensible architecture for custom plugins.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon" style="background:rgba(45,212,191,0.1)">🏗️</div>
+      <h3>Project Scaffolding</h3>
+      <p>Scaffold Node.js, Python, or Go projects with one command. Auto-generate health check endpoints, CI/CD pipelines, and Docker configs.</p>
+    </div>
+  </div>
+</section>
+
+<!-- INSTALL -->
+<section class="section" id="install">
+  <div class="section-header">
+    <div class="label">Installation</div>
+    <h2>Up and Running in 30 Seconds</h2>
+  </div>
+
+  <div class="code-block" style="max-width:700px;margin:0 auto">
+    <div class="code-header"><span>Terminal</span></div>
+    <pre><code><span class="cmt"># Install globally</span>
+<span class="fn">npm</span> install -g dnpm
+
+<span class="cmt"># Setup AI provider (interactive wizard)</span>
+<span class="fn">dnpm</span> setup-ai
+
+<span class="cmt"># Initialize your project</span>
+<span class="fn">dnpm</span> init
+
+<span class="cmt"># Deploy!</span>
+<span class="fn">dnpm</span> deploy</code></pre>
+  </div>
+
+  <div style="max-width:700px;margin:2rem auto 0">
+    <div class="code-block">
+      <div class="code-header"><span>Or use with free local AI (Ollama)</span></div>
+      <pre><code><span class="cmt"># Install Ollama first</span>
+<span class="fn">curl</span> -fsSL https://ollama.ai/install.sh | sh
+<span class="fn">ollama</span> pull llama3
+
+<span class="cmt"># dnpm will auto-detect Ollama — no API key needed!</span>
+<span class="fn">dnpm</span> setup-ai
+<span class="fn">dnpm</span> ai mode     <span class="cmt"># Interactive AI assistant</span></code></pre>
+    </div>
+  </div>
+</section>
+
+<!-- COMMANDS -->
+<section class="section" id="commands">
+  <div class="section-header">
+    <div class="label">Command Reference</div>
+    <h2>50+ Powerful Commands</h2>
+    <p>Every DevOps task you need, accessible from a single CLI.</p>
+  </div>
+
+  <table class="command-table">
+    <thead><tr><th>Command</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td class="cmd-category" colspan="2">🚀 Core</td></tr>
+      <tr><td>dnpm init</td><td>Initialize a new project with auto-detection</td></tr>
+      <tr><td>dnpm deploy</td><td>Build, containerize, and deploy your application</td></tr>
+      <tr><td>dnpm status</td><td>Show live system status (CPU, RAM, disk, containers)</td></tr>
+      <tr><td>dnpm info</td><td>Display system info (dnpm, Node, Docker, Git versions)</td></tr>
+      <tr><td>dnpm restart [service]</td><td>Restart services and containers</td></tr>
+
+      <tr><td class="cmd-category" colspan="2">🤖 AI</td></tr>
+      <tr><td>dnpm setup-ai</td><td>Interactive AI provider setup wizard</td></tr>
+      <tr><td>dnpm ai-providers</td><td>List all AI providers and their status</td></tr>
+      <tr><td>dnpm ai mode</td><td>Enter interactive AI assistant (REPL)</td></tr>
+      <tr><td>dnpm ai fix</td><td>AI auto-fix errors and issues</td></tr>
+      <tr><td>dnpm ai ask "question"</td><td>Ask AI anything about your project</td></tr>
+      <tr><td>dnpm ai generate "desc"</td><td>AI code generation from description</td></tr>
+      <tr><td>dnpm ai security</td><td>AI security review</td></tr>
+      <tr><td>dnpm analyze</td><td>AI-powered system analysis and recommendations</td></tr>
+
+      <tr><td class="cmd-category" colspan="2">☁️ Cloud & Infrastructure</td></tr>
+      <tr><td>dnpm cloud create</td><td>Create full cloud deployment</td></tr>
+      <tr><td>dnpm cloud destroy</td><td>Tear down cloud resources</td></tr>
+      <tr><td>dnpm cloud providers</td><td>List supported cloud providers</td></tr>
+      <tr><td>dnpm provision</td><td>Provision servers (Docker, AWS, GCP, DO, VPS)</td></tr>
+      <tr><td>dnpm setup</td><td>Install runtimes, databases, web servers, SSL</td></tr>
+
+      <tr><td class="cmd-category" colspan="2">📈 Scaling & DNS</td></tr>
+      <tr><td>dnpm scale up &lt;svc&gt; &lt;n&gt;</td><td>Scale a service to N replicas</td></tr>
+      <tr><td>dnpm scale auto</td><td>Enable AI-powered auto-scaling</td></tr>
+      <tr><td>dnpm scale loadbalance</td><td>Generate load balancer config</td></tr>
+      <tr><td>dnpm scale recommend</td><td>Get AI scaling recommendations</td></tr>
+      <tr><td>dnpm dns set &lt;domain&gt; &lt;ip&gt;</td><td>Configure DNS records</td></tr>
+      <tr><td>dnpm dns status &lt;domain&gt;</td><td>Check DNS propagation status</td></tr>
+
+      <tr><td class="cmd-category" colspan="2">🔒 Security</td></tr>
+      <tr><td>dnpm security audit</td><td>Full security audit with AI recommendations</td></tr>
+      <tr><td>dnpm security firewall</td><td>Configure firewall rules</td></tr>
+      <tr><td>dnpm security ssh-keygen</td><td>Generate SSH keys</td></tr>
+      <tr><td>dnpm security harden</td><td>Apply security hardening</td></tr>
+      <tr><td>dnpm secrets set &lt;k&gt; &lt;v&gt;</td><td>Store AES-256-GCM encrypted secret</td></tr>
+      <tr><td>dnpm secrets get &lt;key&gt;</td><td>Retrieve a decrypted secret</td></tr>
+
+      <tr><td class="cmd-category" colspan="2">💾 Backup & Recovery</td></tr>
+      <tr><td>dnpm backup create</td><td>Create a full project backup</td></tr>
+      <tr><td>dnpm backup restore &lt;id&gt;</td><td>Restore from a backup</td></tr>
+      <tr><td>dnpm backup list</td><td>List all backups</td></tr>
+      <tr><td>dnpm backup schedule</td><td>Configure automatic backups</td></tr>
+      <tr><td>dnpm recovery heal</td><td>Self-healing diagnostics and auto-fix</td></tr>
+      <tr><td>dnpm recovery rollback</td><td>Rollback to last known good deployment</td></tr>
+      <tr><td>dnpm recovery watchdog</td><td>Start self-healing watchdog daemon</td></tr>
+
+      <tr><td class="cmd-category" colspan="2">🏗️ Templates & Environment</td></tr>
+      <tr><td>dnpm scaffold project</td><td>Scaffold new project (Node/Python/Go)</td></tr>
+      <tr><td>dnpm scaffold health</td><td>Generate health check endpoint</td></tr>
+      <tr><td>dnpm scaffold generate</td><td>AI-generate code from description</td></tr>
+      <tr><td>dnpm env init</td><td>Initialize environment files</td></tr>
+      <tr><td>dnpm env switch &lt;env&gt;</td><td>Switch environment (dev/staging/prod)</td></tr>
+      <tr><td>dnpm env compare &lt;a&gt; &lt;b&gt;</td><td>Compare two environments</td></tr>
+      <tr><td>dnpm env validate</td><td>Validate environment configuration</td></tr>
+
+      <tr><td class="cmd-category" colspan="2">💰 Cost & Plugins</td></tr>
+      <tr><td>dnpm cost analyze</td><td>Analyze infrastructure costs</td></tr>
+      <tr><td>dnpm cost recommend</td><td>AI cheapest infra recommendation</td></tr>
+      <tr><td>dnpm cost optimize</td><td>Auto-shutdown idle resources</td></tr>
+      <tr><td>dnpm plugin install &lt;n&gt;</td><td>Install a plugin</td></tr>
+      <tr><td>dnpm plugin list</td><td>List installed plugins</td></tr>
+
+      <tr><td class="cmd-category" colspan="2">📊 Monitoring & Ops</td></tr>
+      <tr><td>dnpm monitor</td><td>Live system monitoring with AI spike detection</td></tr>
+      <tr><td>dnpm dashboard</td><td>Full terminal dashboard</td></tr>
+      <tr><td>dnpm logs [service]</td><td>Stream Docker container logs</td></tr>
+      <tr><td>dnpm ci</td><td>Generate CI/CD pipeline (GitHub Actions/GitLab CI)</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- AI PROVIDERS -->
+<section class="section" id="ai">
+  <div class="section-header">
+    <div class="label">AI Providers</div>
+    <h2>Choose Your AI Engine</h2>
+    <p>From free local models to the most powerful cloud APIs — dnpm supports them all.</p>
+  </div>
+
+  <div class="provider-grid">
+    <div class="provider-card">
+      <span class="emoji">🦙</span>
+      <h4>Ollama</h4>
+      <p>Llama 3, CodeLlama, Mistral, Mixtral, Phi-3, Gemma</p>
+      <span class="badge badge-free">FREE • Local</span>
+    </div>
+    <div class="provider-card">
+      <span class="emoji">🧠</span>
+      <h4>OpenAI</h4>
+      <p>GPT-4o, GPT-4 Turbo, o1-preview, o1-mini</p>
+      <span class="badge badge-paid">API Key Required</span>
+    </div>
+    <div class="provider-card">
+      <span class="emoji">🎭</span>
+      <h4>Claude</h4>
+      <p>Claude Opus 4, Sonnet 4, Haiku</p>
+      <span class="badge badge-paid">API Key Required</span>
+    </div>
+    <div class="provider-card">
+      <span class="emoji">💎</span>
+      <h4>Gemini</h4>
+      <p>Gemini 1.5 Pro, Gemini Ultra, Flash</p>
+      <span class="badge badge-paid">API Key Required</span>
+    </div>
+    <div class="provider-card">
+      <span class="emoji">🌐</span>
+      <h4>OpenRouter</h4>
+      <p>Access 100+ models with a single key</p>
+      <span class="badge badge-paid">API Key Required</span>
+    </div>
+  </div>
+</section>
+
+<!-- QUICK START -->
+<section class="section" id="quickstart">
+  <div class="section-header">
+    <div class="label">Quick Start Guide</div>
+    <h2>From Zero to Deployed</h2>
+  </div>
+
+  <div style="max-width:800px;margin:0 auto">
+    <div style="display:grid;gap:2rem">
+      <!-- Step 1 -->
+      <div style="display:flex;gap:1.5rem;align-items:flex-start">
+        <div style="min-width:48px;height:48px;border-radius:12px;background:var(--gradient);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.2rem">1</div>
+        <div style="flex:1">
+          <h3 style="margin-bottom:0.5rem">Install dnpm</h3>
+          <div class="code-block">
+            <pre><code>npm install -g dnpm</code></pre>
+          </div>
+        </div>
+      </div>
+      <!-- Step 2 -->
+      <div style="display:flex;gap:1.5rem;align-items:flex-start">
+        <div style="min-width:48px;height:48px;border-radius:12px;background:var(--gradient);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.2rem">2</div>
+        <div style="flex:1">
+          <h3 style="margin-bottom:0.5rem">Setup AI (optional)</h3>
+          <div class="code-block">
+            <pre><code><span class="cmt"># Interactive wizard — picks provider, model, tests connection</span>
+dnpm setup-ai
+
+<span class="cmt"># Or set a key directly</span>
+dnpm config set-key openai sk-your-key-here</code></pre>
+          </div>
+        </div>
+      </div>
+      <!-- Step 3 -->
+      <div style="display:flex;gap:1.5rem;align-items:flex-start">
+        <div style="min-width:48px;height:48px;border-radius:12px;background:var(--gradient);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.2rem">3</div>
+        <div style="flex:1">
+          <h3 style="margin-bottom:0.5rem">Initialize & Deploy</h3>
+          <div class="code-block">
+            <pre><code><span class="fn">cd</span> my-project
+<span class="fn">dnpm</span> init           <span class="cmt"># Auto-detects your project</span>
+<span class="fn">dnpm</span> deploy         <span class="cmt"># Builds + deploys with Docker</span></code></pre>
+          </div>
+        </div>
+      </div>
+      <!-- Step 4 -->
+      <div style="display:flex;gap:1.5rem;align-items:flex-start">
+        <div style="min-width:48px;height:48px;border-radius:12px;background:var(--gradient);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.2rem">4</div>
+        <div style="flex:1">
+          <h3 style="margin-bottom:0.5rem">Monitor & Manage</h3>
+          <div class="code-block">
+            <pre><code><span class="fn">dnpm</span> status         <span class="cmt"># Live system status</span>
+<span class="fn">dnpm</span> monitor        <span class="cmt"># Real-time monitoring + AI alerts</span>
+<span class="fn">dnpm</span> ai mode        <span class="cmt"># Chat with your AI assistant</span>
+<span class="fn">dnpm</span> security audit <span class="cmt"># Full security analysis</span></code></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ARCHITECTURE -->
+<section class="section" id="architecture">
+  <div class="section-header">
+    <div class="label">Architecture</div>
+    <h2>How dnpm Works</h2>
+    <p>A modular engine system where each component handles a specific DevOps domain.</p>
+  </div>
+
+  <div class="arch-grid">
+    <div class="arch-box">
+      <h4>CLI Layer</h4>
+      <ul>
+        <li>Commander.js Router</li>
+        <li>Interactive Prompts</li>
+        <li>Terminal Dashboard</li>
+        <li>Progress UI</li>
+      </ul>
+    </div>
+    <div class="arch-box">
+      <h4>Engine Layer</h4>
+      <ul>
+        <li>Provision Engine</li>
+        <li>Setup Engine</li>
+        <li>Deploy Engine</li>
+        <li>AI Dev Engine</li>
+        <li>Ops Engine</li>
+        <li>Backup Engine</li>
+        <li>Scaling Engine</li>
+        <li>DNS Manager</li>
+      </ul>
+    </div>
+    <div class="arch-box">
+      <h4>Infrastructure</h4>
+      <ul>
+        <li>Docker / Compose</li>
+        <li>AWS / GCP / DO</li>
+        <li>Nginx / Caddy</li>
+        <li>Let's Encrypt SSL</li>
+      </ul>
+    </div>
+  </div>
+  <div style="text-align:center;padding:1.5rem 0">
+    <div style="display:flex;justify-content:center;gap:2rem;flex-wrap:wrap">
+      <div class="arch-box" style="flex:1;max-width:350px">
+        <h4>AI Layer</h4>
+        <ul>
+          <li>Unified AI Provider</li>
+          <li>Ollama (Local)</li>
+          <li>OpenAI / Claude / Gemini</li>
+          <li>OpenRouter (100+ models)</li>
+        </ul>
+      </div>
+      <div class="arch-box" style="flex:1;max-width:350px">
+        <h4>Security Layer</h4>
+        <ul>
+          <li>AES-256-GCM Vault</li>
+          <li>Firewall Manager</li>
+          <li>SSH Hardening</li>
+          <li>DDoS Protection</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- COMPARISON -->
+<section class="section">
+  <div class="section-header">
+    <div class="label">Why dnpm?</div>
+    <h2>Replace Your Entire Toolchain</h2>
+  </div>
+
+  <table class="command-table" style="max-width:900px;margin:0 auto">
+    <thead><tr><th>Category</th><th>Without dnpm</th><th>With dnpm</th></tr></thead>
+    <tbody>
+      <tr><td>Deployment</td><td>Docker + Kubernetes + Helm + Terraform</td><td><code>dnpm deploy</code></td></tr>
+      <tr><td>AI Assistant</td><td>ChatGPT + Copilot + Claude (separate tabs)</td><td><code>dnpm ai mode</code></td></tr>
+      <tr><td>Monitoring</td><td>Datadog + Prometheus + Grafana</td><td><code>dnpm monitor</code></td></tr>
+      <tr><td>Security</td><td>Snyk + OWASP + manual audit</td><td><code>dnpm security audit</code></td></tr>
+      <tr><td>CI/CD</td><td>Write YAML manually</td><td><code>dnpm ci</code></td></tr>
+      <tr><td>Scaling</td><td>kubectl + HPA + load balancer config</td><td><code>dnpm scale auto</code></td></tr>
+      <tr><td>Backups</td><td>cron + rsync + custom scripts</td><td><code>dnpm backup create</code></td></tr>
+      <tr><td>Cost</td><td>AWS Cost Explorer + manual review</td><td><code>dnpm cost analyze</code></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-links">
+    <a href="https://github.com/dnpm/dnpm">GitHub</a>
+    <a href="https://www.npmjs.com/package/dnpm">npm</a>
+    <a href="#commands">Commands</a>
+    <a href="#ai">AI Providers</a>
+  </div>
+  <p>Built with ⚡ by the dnpm team. MIT License.</p>
+</footer>
+
+</body>
+</html>

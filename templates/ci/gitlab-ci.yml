@@ -1,0 +1,54 @@
+stages:
+  - test
+  - build
+  - security
+  - deploy
+
+variables:
+  NODE_ENV: production
+
+test:
+  stage: test
+  image: node:20-alpine
+  cache:
+    paths:
+      - node_modules/
+  script:
+    - npm ci
+    - npm run lint --if-present
+    - npm test
+
+build:
+  stage: build
+  image: docker:latest
+  services:
+    - docker:dind
+  script:
+    - docker build -t $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA .
+    - docker tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA $CI_REGISTRY_IMAGE:latest
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+    - docker push $CI_REGISTRY_IMAGE:latest
+  only:
+    - main
+
+security:
+  stage: security
+  image: aquasec/trivy:latest
+  script:
+    - trivy image $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA || true
+  only:
+    - main
+  allow_failure: true
+
+deploy:
+  stage: deploy
+  image: node:20-alpine
+  script:
+    - npm install -g dnpm
+    - dnpm deploy --ci --strategy rolling
+  only:
+    - main
+  environment:
+    name: production
+  when: manual
