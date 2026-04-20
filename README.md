@@ -42,7 +42,7 @@ Deploy, scale, monitor, secure, and manage your entire infrastructure with AI-po
 
 ```bash
 # Install globally
-npm install -g dnpm
+npm install @rukkit/dnpm
 
 # Setup your AI provider (interactive wizard)
 dnpm setup-ai
