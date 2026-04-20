@@ -1,5 +1,5 @@
 {
-  "name": "@3289david/dnpm",
+  "name": "@rukkit/dnpm",
   "version": "1.1.0",
   "description": "dnpm — All-in-one server provisioning, deployment, operations & AI-powered DevOps platform. npm + Docker + Vercel + AWS + AI combined.",
   "main": "src/index.js",
