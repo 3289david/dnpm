@@ -6,7 +6,7 @@
 
 **npm + Docker + Vercel + AWS + GPT — Combined Into a Single Terminal OS**
 
-[![npm version](https://img.shields.io/badge/npm-v1.0.0-7c3aed?style=for-the-badge&logo=npm&logoColor=white)](https://www.npmjs.com/package/dnpm)
+[![npm version](https://img.shields.io/badge/npm-v1.1.0-7c3aed?style=for-the-badge&logo=npm&logoColor=white)](https://www.npmjs.com/package/@rukkit/dnpm)
 [![license](https://img.shields.io/badge/license-MIT-10b981?style=for-the-badge)](LICENSE)
 [![node](https://img.shields.io/badge/node-%3E%3D18-06b6d4?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org)
 [![docker](https://img.shields.io/badge/docker-ready-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://docker.com)
