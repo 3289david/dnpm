@@ -30,7 +30,7 @@ export function createCLI() {
   program
     .name('dnpm')
     .description('⚡ dnpm — All-in-One Server Provisioning, Deployment, Operations & AI DevOps Platform')
-    .version('1.0.0');
+    .version('1.2.0');
 
   // ===== INIT =====
   program

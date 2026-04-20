@@ -1,6 +1,6 @@
 {
   "name": "@rukkit/dnpm",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "dnpm — All-in-one server provisioning, deployment, operations & AI-powered DevOps platform. npm + Docker + Vercel + AWS + AI combined.",
   "main": "src/index.js",
   "type": "module",
@@ -11,7 +11,7 @@
     "start": "node bin/dnpm.js",
     "test": "node --experimental-vm-modules node_modules/.bin/jest",
     "lint": "eslint src/",
-    "prepublishOnly": "echo Publishing dnpm v1.1.0"
+    "prepublishOnly": "echo Publishing dnpm v1.2.0"
   },
   "keywords": [
     "dnpm",
