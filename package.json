@@ -4,7 +4,9 @@
   "description": "dnpm — All-in-one server provisioning, deployment, operations & AI-powered DevOps platform. npm + Docker + Vercel + AWS + AI combined.",
   "main": "src/index.js",
   "type": "module",
-  "bin": "./bin/dnpm.js",
+  "bin": {
+    "dnpm": "bin/dnpm.js"
+  },
   "scripts": {
     "start": "node bin/dnpm.js",
     "test": "node --experimental-vm-modules node_modules/.bin/jest",
@@ -76,6 +78,6 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/3289david/dnpm"
+    "url": "git+https://github.com/3289david/dnpm.git"
   }
 }
